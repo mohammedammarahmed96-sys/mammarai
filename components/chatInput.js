@@ -112,7 +112,7 @@ export default function ChatInput({
       </form>
 
       <p className="text-xs text-gray-400 text-center mt-2">
-        ChatGPT can make mistakes. Check important info.
+        ammarAI can make mistakes. Check important info.
       </p>
     </footer>
   );

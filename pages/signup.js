@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import PopupMessage from "../components/PopupMessage";
+import Link from "next/link";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -12,32 +13,16 @@ export default function Signup() {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // 🔎 Check if user already exists
-    const res = await fetch("/api/checkUser", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const { exists } = await res.json();
-
-    if (exists) {
-      setMessage("❌ This email is already registered. Please log in instead.");
-      return;
-    }
-
-    // ✅ If not exists, continue signup with redirect
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`, // ✅ redirect after verification
-      },
     });
 
     if (error) {
       setMessage("❌ " + error.message);
     } else {
-      setMessage("📩 Please check your email to verify your account.");
+      setMessage("✅ Account created! Please check your email for verification.");
+      setTimeout(() => router.replace("/"), 2000);
     }
   };
 
@@ -46,15 +31,12 @@ export default function Signup() {
       <PopupMessage message={message} onClose={() => setMessage("")} />
 
       <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-md p-8">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src="/logo.svg" alt="InstaProduct AI" className="h-10" />
-        </div>
-
+        {/* Title */}
         <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
           Create your account
         </h1>
 
+        {/* Form */}
         <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="email"
@@ -80,11 +62,12 @@ export default function Signup() {
           </button>
         </form>
 
+        {/* Link */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <a href="/login" className="text-black hover:underline">
+          <Link href="/login" className="text-black hover:underline">
             Log in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

@@ -10,40 +10,36 @@ export default function Signup() {
   const router = useRouter();
 
   const handleSignup = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // 🔎 Check if user already exists
-  const res = await fetch("/api/checkUser", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  const { exists } = await res.json();
+    // 🔎 Check if user already exists
+    const res = await fetch("/api/checkUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const { exists } = await res.json();
 
-  if (exists) {
-    setMessage("❌ This email is already registered. Please log in instead.");
-    return;
-  }
+    if (exists) {
+      setMessage("❌ This email is already registered. Please log in instead.");
+      return;
+    }
 
-  // ✅ Supabase signup (with email verification)
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+    // ✅ If not exists, continue signup with redirect
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`, // ✅ redirect after verification
+      },
+    });
 
-  if (error) {
-    setMessage("❌ " + error.message);
-  } else {
-    setMessage(
-      "A confirmation email has been sent. Please verify your email before logging in."
-    );
-    setEmail("");
-    setPassword("");
-  }
-};
-
-
-
+    if (error) {
+      setMessage("❌ " + error.message);
+    } else {
+      setMessage("📩 Please check your email to verify your account.");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -52,15 +48,13 @@ export default function Signup() {
       <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-md p-8">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo.svg" alt="Mohammed Ammar Ahmed" className="h-10" />
+          <img src="/logo.svg" alt="InstaProduct AI" className="h-10" />
         </div>
 
-        {/* Title */}
         <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
           Create your account
         </h1>
 
-        {/* Form */}
         <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="email"
@@ -86,7 +80,6 @@ export default function Signup() {
           </button>
         </form>
 
-        {/* Link */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
           <a href="/login" className="text-black hover:underline">

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import { motion } from "framer-motion";
-import PopupMessage from "../components/PopupMessage";
+import Link from "next/link";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,20 +13,21 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
-      setMessage("❌ Invalid email or password.");
+      setMessage("❌ " + error.message);
     } else {
       setMessage("✅ Login successful! Redirecting...");
-      setTimeout(() => router.replace("/"), 1500);
+      router.replace("/");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <PopupMessage message={message} onClose={() => setMessage("")} />
-
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -75,20 +76,28 @@ export default function Login() {
 
         {/* Forgot Password */}
         <div className="mt-3 text-right">
-          <a
-            href="/forgot-password"
-            className="text-sm text-gray-600 hover:underline"
-          >
+          <Link href="/forgot-password" className="text-sm text-gray-600 hover:underline">
             Forgot password?
-          </a>
+          </Link>
         </div>
+
+        {/* Message */}
+        {message && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-4 text-center text-sm text-gray-700"
+          >
+            {message}
+          </motion.p>
+        )}
 
         {/* Link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-black font-medium hover:underline">
+          <Link href="/signup" className="text-black font-medium hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
       </motion.div>
     </div>
